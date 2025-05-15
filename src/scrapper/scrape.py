@@ -14,8 +14,8 @@ class ScrapeReviews:
     def __init__(self,
                  product_name:str,
                  no_of_products:int):
-         # Automatically install the correct chromedriver
-        chromedriver_autoinstaller.install()
+         
+        #options = Options()
 
         options = Options()
         options.add_argument("--headless")
@@ -27,7 +27,6 @@ class ScrapeReviews:
         options.add_argument("--window-size=1920,1080")
 
         self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-        #options = Options()
         # options.add_argument("--no-sandbox")
         # options.add_argument("--disable-dev-shm-usage")
         # options.add_argument('--headless')
