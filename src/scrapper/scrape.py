@@ -9,6 +9,7 @@ import time
 from selenium.webdriver.chrome.options import Options 
 from urllib.parse import quote
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service
 
 
 class ScrapeReviews:
