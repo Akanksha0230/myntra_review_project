@@ -199,50 +199,86 @@ class ScrapeReviews:
         product_urls: list = self.scrape_product_urls(search_string, no_of_products + 1)
 
         product_urls.pop(skip_index)
+      
 
-    def get_review_data(self) -> pd.DataFrame:
-        try:
-            # search_string = self.request.form["content"].replace(" ", "-")
-            # no_of_products = int(self.request.form["prod_no"])
+        def get_review_data(self) -> pd.DataFrame:
+            try:
+                product_urls = self.scrape_product_urls(product_name=self.product_name)
+                product_details = []
+                review_len = 0
 
-            product_urls = self.scrape_product_urls(product_name=self.product_name)
+        # Keep looping while there are URLs left and we haven't reached the desired count
+                while review_len < self.no_of_products and product_urls:
+                  try:
+                     product_url = product_urls.pop(0)  # Safely remove first item
+
+                     review = self.extract_reviews(product_url)
+
+                     if review:
+                        product_detail = self.extract_products(review)
+                        product_details.append(product_detail)
+                        review_len += 1
+                # If review is None, skip it without incrementing review_len
+                  except Exception as inner_e:
+                    print(f"Error processing product URL: {inner_e}")
+                    continue
+
+                self.driver.quit()
+
+                if not product_details:
+                  raise CustomException("No valid reviews found", sys)
+
+                data = pd.concat(product_details, axis=0)
+                data.to_csv("data.csv", index=False)
+
+                return data
+
+            except Exception as e:
+               raise CustomException(e, sys)
+
+    # def get_review_data(self) -> pd.DataFrame:
+    #     try:
+    #         # search_string = self.request.form["content"].replace(" ", "-")
+    #         # no_of_products = int(self.request.form["prod_no"])
+
+    #         product_urls = self.scrape_product_urls(product_name=self.product_name)
 
             
 
-            product_details = []
+    #         product_details = []
 
-            review_len = 0
+    #         review_len = 0
 
 
-            while review_len < self.no_of_products:
-                product_url = product_urls[review_len]
-                review = self.extract_reviews(product_url)
+    #         while review_len < self.no_of_products:
+    #             product_url = product_urls[review_len]
+    #             review = self.extract_reviews(product_url)
 
-                if review:
-                    product_detail = self.extract_products(review)
-                    product_details.append(product_detail)
+    #             if review:
+    #                 product_detail = self.extract_products(review)
+    #                 product_details.append(product_detail)
 
-                    review_len += 1
-                else:
-                    product_urls.pop(review_len)
+    #                 review_len += 1
+    #             else:
+    #                 product_urls.pop(review_len)
 
-            self.driver.quit()
+    #         self.driver.quit()
 
-            data = pd.concat(product_details, axis=0)
+    #         data = pd.concat(product_details, axis=0)
             
-            data.to_csv("data.csv", index=False)
+    #         data.to_csv("data.csv", index=False)
             
-            return data
+    #         return data
             
             
                 
-            # columns = data.columns
+    #         # columns = data.columns
 
-            # values = [[data.loc[i, col] for col in data.columns ] for i in range(len(data)) ]
+    #         # values = [[data.loc[i, col] for col in data.columns ] for i in range(len(data)) ]
             
-            # return columns, values
+    #         # return columns, values
         
     
 
-        except Exception as e:
-            raise CustomException(e, sys)
+    #     except Exception as e:
+    #         raise CustomException(e, sys)
