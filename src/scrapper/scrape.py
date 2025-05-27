@@ -8,31 +8,19 @@ import os, sys
 import time
 from selenium.webdriver.chrome.options import Options 
 from urllib.parse import quote
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.service import Service
 
 
 class ScrapeReviews:
     def __init__(self,
                  product_name:str,
                  no_of_products:int):
-         
-        #options = Options()
-
         options = Options()
-        options.binary_location = "/usr/bin/chromium"
-        options.add_argument("--headless")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--disable-gpu")
-        options.add_argument("--window-size=1920,1080")
-        self.driver = webdriver.Chrome( options=options)
         # options.add_argument("--no-sandbox")
         # options.add_argument("--disable-dev-shm-usage")
         # options.add_argument('--headless')
         
         # Start a new Chrome browser session
-        # self.driver = webdriver.Chrome(options=options)
+        self.driver = webdriver.Chrome(options=options)
 
         self.product_name = product_name
         self.no_of_products = no_of_products
@@ -199,86 +187,50 @@ class ScrapeReviews:
         product_urls: list = self.scrape_product_urls(search_string, no_of_products + 1)
 
         product_urls.pop(skip_index)
-      
 
-        def get_review_data(self) -> pd.DataFrame:
-            try:
-                product_urls = self.scrape_product_urls(product_name=self.product_name)
-                product_details = []
-                review_len = 0
+    def get_review_data(self) -> pd.DataFrame:
+        try:
+            # search_string = self.request.form["content"].replace(" ", "-")
+            # no_of_products = int(self.request.form["prod_no"])
 
-        # Keep looping while there are URLs left and we haven't reached the desired count
-                while review_len < self.no_of_products and product_urls:
-                  try:
-                     product_url = product_urls.pop(0)  # Safely remove first item
-
-                     review = self.extract_reviews(product_url)
-
-                     if review:
-                        product_detail = self.extract_products(review)
-                        product_details.append(product_detail)
-                        review_len += 1
-                # If review is None, skip it without incrementing review_len
-                  except Exception as inner_e:
-                    print(f"Error processing product URL: {inner_e}")
-                    continue
-
-                self.driver.quit()
-
-                if not product_details:
-                  raise CustomException("No valid reviews found", sys)
-
-                data = pd.concat(product_details, axis=0)
-                data.to_csv("data.csv", index=False)
-
-                return data
-
-            except Exception as e:
-               raise CustomException(e, sys)
-
-    # def get_review_data(self) -> pd.DataFrame:
-    #     try:
-    #         # search_string = self.request.form["content"].replace(" ", "-")
-    #         # no_of_products = int(self.request.form["prod_no"])
-
-    #         product_urls = self.scrape_product_urls(product_name=self.product_name)
+            product_urls = self.scrape_product_urls(product_name=self.product_name)
 
             
 
-    #         product_details = []
+            product_details = []
 
-    #         review_len = 0
+            review_len = 0
 
 
-    #         while review_len < self.no_of_products:
-    #             product_url = product_urls[review_len]
-    #             review = self.extract_reviews(product_url)
+            while review_len < self.no_of_products:
+                product_url = product_urls[review_len]
+                review = self.extract_reviews(product_url)
 
-    #             if review:
-    #                 product_detail = self.extract_products(review)
-    #                 product_details.append(product_detail)
+                if review:
+                    product_detail = self.extract_products(review)
+                    product_details.append(product_detail)
 
-    #                 review_len += 1
-    #             else:
-    #                 product_urls.pop(review_len)
+                    review_len += 1
+                else:
+                    product_urls.pop(review_len)
 
-    #         self.driver.quit()
+            self.driver.quit()
 
-    #         data = pd.concat(product_details, axis=0)
+            data = pd.concat(product_details, axis=0)
             
-    #         data.to_csv("data.csv", index=False)
+            data.to_csv("data.csv", index=False)
             
-    #         return data
+            return data
             
             
                 
-    #         # columns = data.columns
+            # columns = data.columns
 
-    #         # values = [[data.loc[i, col] for col in data.columns ] for i in range(len(data)) ]
+            # values = [[data.loc[i, col] for col in data.columns ] for i in range(len(data)) ]
             
-    #         # return columns, values
+            # return columns, values
         
     
 
-    #     except Exception as e:
-    #         raise CustomException(e, sys)
+        except Exception as e:
+            raise CustomException(e, sys)
